@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registration Form</title>
+  <style>
+    :root{--bg:#f5f7fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0;background:var(--bg);color:#111}
+    .container{max-width:820px;margin:40px auto;padding:24px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,.06);padding:20px}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+    form .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px}
+    input[type="text"],input[type="email"],input[type="password"],input[type="tel"],select,textarea,input[type="date"]{
+      width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px;box-sizing:border-box
+    }
+    .full{grid-column:1/-1}
+    .row{display:flex;gap:12px;align-items:center}
+    .small{font-size:13px;color:var(--muted)}
+    .actions{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+    button{background:var(--accent);color:#fff;padding:10px 14px;border:0;border-radius:8px;cursor:pointer}
+    .error{color:#b91c1c;font-size:13px;margin-top:6px}
+    .success{color:#047857;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" role="region" aria-labelledby="formHeading">
+      <h1 id="formHeading">Create your account</h1>
+      <p class="lead">Fill in the form below to register. Fields marked * are required.</p>
+
+      <form id="regForm" novalidate>
+        <div class="grid">
+          <div>
+            <label for="firstName">First name *</label>
+            <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+            <div class="error" id="err-firstName" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="lastName">Last name *</label>
+            <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
+            <div class="error" id="err-lastName" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="email">Email address *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+            <div class="error" id="err-email" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" pattern="\d{10}" placeholder="10 digits">
+            <div class="small">Format: 10 digits (numbers only)</div>
+            <div class="error" id="err-phone" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="password">Password *</label>
+            <input id="password" name="password" type="password" minlength="8" required aria-describedby="pwdHelp">
+            <div class="small" id="pwdHelp">Minimum 8 characters.</div>
+            <div class="error" id="err-password" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="confirmPassword">Confirm password *</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" minlength="8" required>
+            <div class="error" id="err-confirmPassword" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="dob">Date of birth</label>
+            <input id="dob" name="dob" type="date">
+          </div>
+
+          <div>
+            <label>Gender</label>
+            <div class="row">
+              <label><input type="radio" name="gender" value="male"> Male</label>
+              <label><input type="radio" name="gender" value="female"> Female</label>
+              <label><input type="radio" name="gender" value="other"> Other</label>
+            </div>
+          </div>
+
+          <div class="full">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="3"></textarea>
+          </div>
+
+          <div>
+            <label for="country">Country</label>
+            <select id="country" name="country">
+              <option value="">Select</option>
+              <option>India</option>
+              <option>United States</option>
+              <option>United Kingdom</option>
+              <option>Canada</option>
+              <option>Australia</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="terms">Terms</label>
+            <div class="row">
+              <input id="terms" name="terms" type="checkbox" required>
+              <label for="terms" class="small">I agree to the <a href="#">terms & conditions</a> *</label>
+            </div>
+            <div class="error" id="err-terms" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="small">Already have an account? <a href="#">Sign in</a></div>
+          <div>
+            <button type="submit">Register</button>
+          </div>
+        </div>
+
+        <div id="formMessage" role="status" aria-live="polite" style="margin-top:12px"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Basic client-side validation and UX
+    const form = document.getElementById('regForm');
+    const msg = document.getElementById('formMessage');
+
+    function showError(id, text){
+      document.getElementById('err-' + id).textContent = text || '';
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      // clear previous errors
+      ['firstName','lastName','email','phone','password','confirmPassword','terms'].forEach(k=>showError(k,''));
+      msg.textContent = '';
+
+      const data = new FormData(form);
+      let valid = true;
+
+      // required fields
+      if(!data.get('firstName')?.trim()){ showError('firstName','First name is required'); valid=false }
+      if(!data.get('lastName')?.trim()){ showError('lastName','Last name is required'); valid=false }
+      const email = data.get('email')?.trim();
+      if(!email){ showError('email','Email is required'); valid=false }
+      else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showError('email','Enter a valid email'); valid=false }
+
+      const pwd = data.get('password') || '';
+      const cpwd = data.get('confirmPassword') || '';
+      if(pwd.length < 8){ showError('password','Password must be at least 8 characters'); valid=false }
+      if(cpwd !== pwd){ showError('confirmPassword','Passwords do not match'); valid=false }
+
+      const phone = data.get('phone')?.trim();
+      if(phone && !/^\d{10}$/.test(phone)){ showError('phone','Enter a 10-digit phone number'); valid=false }
+
+      if(!data.get('terms')){ showError('terms','You must accept the terms'); valid=false }
+
+      if(!valid){ msg.innerHTML = '<span class="error">Please fix the highlighted errors.</span>'; return }
+
+      // Simulate successful submission (replace with AJAX / fetch in real app)
+      msg.innerHTML = '<span class="success">Registration successful — data ready to be sent to the server.</span>';
+      form.reset();
+    });
+  </script>
+</body>
+</html>
